@@ -1,4 +1,5 @@
 import { nanoid } from "nanoid";
+import Job from "../models/jobModel.js"
 
 let jobs = [
     { id: nanoid(), company: " Apple", position: "Frontend" },
@@ -6,58 +7,65 @@ let jobs = [
 ]
 
 
-export const getAllJobs = async  (req, res) => {
-    res.status(200).json({ jobs })
+export const getAllJobs = async (req, res) => {
+    try {
+        const jobs = await Job.find({})
+        res.status(200).json({ jobs })
+    } catch (error) {
+        res.status(5000).json({ message: "Serveur error" })
+    }
+
 }
 
 export const createJob = async (req, res) => {
-    const { company, position } = req.body
-    // ---const company =req.body.company la 2 eme méthode
-    if (!company || !position) {
-        return res.status(400).json({ message: "veuillez entrer toutes les informations" })
+    try {
+        const job = await Job.create(req.body)
+        res.status(201).json({ job })
+    } catch (error) {
+        res.status(5000).json({ message: "Serveur error" })
     }
-    const id = nanoid(10)
-    const job = { id, company, position }
-
-    jobs.push(job)
-    res.status(201).json({ job })
 }
 
 export const getOneJob = async (req, res) => {
-    const { id } = req.params;
-    const job = jobs.find((job) => job.id === id)
-    if (!job) {
-        return res.status(404).json({ message: "Le job n'existe pas" })
+    try {
+        const {id}= req.params
+        const job = await Job.findById(id)
+        if(!job){
+           return res.status(404).json({message: "Ce job n'existe pas"})
+        }
+        res.status(200).json({job})
+
+    } catch (error) {
+        res.status(5000).json({ message: "Serveur error" })
     }
-    res.status(200).json({ job })
+
 
 }
 
 export const updateJob = async (req, res) => {
-    const { company, position } = req.body
-    if (!company || !position) {
-        return res.status(400).json({ message: "Veuillez remplir toutes les données" })
-    }
-    const id = req.params.id
-    const job = jobs.find((job) => job.id === id)
-    if (!job) {
-        return res.status(404).json({ message: " Le job n'existe pas" })
-    }
-
-    job.company = company
-    job.position = position
-    res.status(200).json({ message: "job a été modifié", job })
+       try {
+        const {id} = req.params
+        const updatedJob = await Job.findByIdAndUpdate(id,req.body,{new : true})
+        if (!updatedJob){
+            return res.status(404).json({message : "Le job n'existe pas"})
+        }
+        res.status(200).json({job : updatedJob })
+    } catch (error) {
+        res.status(5000).json({ message: "Serveur error" })
+    } 
 
 }
 
 export const deleteJob = async (req, res) => {
-    const { id } = req.params
-    const job = jobs.find((job) => job.id === id)
-    if (!job) {
-        return res.status(404).json({ message: " Le job n'existe pas" })
-    }
-    const newjobs = jobs.filter((job) => job.id !== id)
-    jobs = newjobs
-    res.status(200).json({message : "le poste a été supprimer"})
+      try {
+        const {id} = req.params
+        const removedJob = await Job.findByIdAndDelete(id)
+        if (!removedJob){
+            return res.status(404).json({message : "Le job n'existe pas"})
+        }
+        res.status(200).json({job : removedJob})
+    } catch (error) {
+        res.status(5000).json({ message: "Serveur error" })
+    } 
 
 }
