@@ -1,71 +1,46 @@
-import { nanoid } from "nanoid";
+import { StatusCodes } from "http-status-codes"
 import Job from "../models/jobModel.js"
-
-let jobs = [
-    { id: nanoid(), company: " Apple", position: "Frontend" },
-    { id: nanoid(), company: " Google", position: "Backend" }
-]
-
+import { NotFoundError } from "../Errors/customeErrors.js"
 
 export const getAllJobs = async (req, res) => {
-    try {
-        const jobs = await Job.find({})
-        res.status(200).json({ jobs })
-    } catch (error) {
-        res.status(5000).json({ message: "Serveur error" })
-    }
+    const jobs = await Job.find({})
+    res.status(StatusCodes.OK).json({ jobs })
 
 }
 
 export const createJob = async (req, res) => {
-    try {
-        const job = await Job.create(req.body)
-        res.status(201).json({ job })
-    } catch (error) {
-        res.status(5000).json({ message: "Serveur error" })
-    }
+
+    const job = await Job.create(req.body)
+    res.status(StatusCodes.CREATED).json({ job })
 }
 
 export const getOneJob = async (req, res) => {
-    try {
-        const {id}= req.params
-        const job = await Job.findById(id)
-        if(!job){
-           return res.status(404).json({message: "Ce job n'existe pas"})
-        }
-        res.status(200).json({job})
-
-    } catch (error) {
-        res.status(5000).json({ message: "Serveur error" })
+    const { id } = req.params
+    const job = await Job.findById(id)
+    if (!job) {
+        throw new NotFoundError("Ce job n'existe pas")
     }
+    res.status(StatusCodes.OK).json({ job })
 
 
 }
 
 export const updateJob = async (req, res) => {
-       try {
-        const {id} = req.params
-        const updatedJob = await Job.findByIdAndUpdate(id,req.body,{new : true})
-        if (!updatedJob){
-            return res.status(404).json({message : "Le job n'existe pas"})
-        }
-        res.status(200).json({job : updatedJob })
-    } catch (error) {
-        res.status(5000).json({ message: "Serveur error" })
-    } 
+    const { id } = req.params
+    const updatedJob = await Job.findByIdAndUpdate(id, req.body, { new: true })
+    if (!updatedJob) {
+        throw new NotFoundError("Ce job n'existe pas")
+    }
+    res.status(StatusCodes.OK).json({ job: updatedJob })
 
 }
 
 export const deleteJob = async (req, res) => {
-      try {
-        const {id} = req.params
-        const removedJob = await Job.findByIdAndDelete(id)
-        if (!removedJob){
-            return res.status(404).json({message : "Le job n'existe pas"})
-        }
-        res.status(200).json({job : removedJob})
-    } catch (error) {
-        res.status(5000).json({ message: "Serveur error" })
-    } 
+    const { id } = req.params
+    const removedJob = await Job.findByIdAndDelete(id)
+    if (!removedJob) {
+         throw new NotFoundError("Ce job n'existe pas")
+    }
+    res.status(StatusCodes.OK).json({ job: removedJob })
 
 }
