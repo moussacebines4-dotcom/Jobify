@@ -9,7 +9,6 @@ export const getAllJobs = async (req, res) => {
 }
 
 export const createJob = async (req, res) => {
-
     const job = await Job.create(req.body)
     res.status(StatusCodes.CREATED).json({ job })
 }
@@ -17,20 +16,14 @@ export const createJob = async (req, res) => {
 export const getOneJob = async (req, res) => {
     const { id } = req.params
     const job = await Job.findById(id)
-    if (!job) {
-        throw new NotFoundError("Ce job n'existe pas")
-    }
     res.status(StatusCodes.OK).json({ job })
-
 
 }
 
 export const updateJob = async (req, res) => {
     const { id } = req.params
     const updatedJob = await Job.findByIdAndUpdate(id, req.body, { new: true })
-    if (!updatedJob) {
-        throw new NotFoundError("Ce job n'existe pas")
-    }
+ 
     res.status(StatusCodes.OK).json({ job: updatedJob })
 
 }
@@ -38,9 +31,7 @@ export const updateJob = async (req, res) => {
 export const deleteJob = async (req, res) => {
     const { id } = req.params
     const removedJob = await Job.findByIdAndDelete(id)
-    if (!removedJob) {
-         throw new NotFoundError("Ce job n'existe pas")
-    }
+
     res.status(StatusCodes.OK).json({ job: removedJob })
 
 }
